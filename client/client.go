@@ -6,14 +6,16 @@ import (
 
 	"abhi.com/tcp/protocol"
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/proto"
+
+	// "google.golang.org/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 type Client struct {
-	Proto       string
-	SAddr       string
-	conn *net.TCPConn
-	rw *bufio.ReadWriter
+	Proto string
+	SAddr string
+	conn  *net.TCPConn
+	rw    *bufio.ReadWriter
 }
 
 func (c *Client) Connect() error {
@@ -31,14 +33,15 @@ func (c *Client) Connect() error {
 	return nil
 }
 
-func (c *Client) Send(m proto.Message) error  {
+func (c *Client) Send(m proto.Message) error {
 	defer c.conn.Close()
-	err := protocol.WriteResponse(m, c.rw.Writer)
+	req, _ := protocol.PrepareRequest("login", m)
+	err := protocol.WritePacket(req, c.rw.Writer)
 	if err != nil {
 		log.Errorf("Client failed to send message: %v", err)
 		return err
 	}
-	res, err := protocol.ReadRequest(c.rw.Reader)
+	res, err := protocol.ReadResponse(c.rw.Reader)
 	if err != nil {
 		log.Errorf("Failed to read server response: %v", err)
 		return err

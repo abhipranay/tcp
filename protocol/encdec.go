@@ -6,18 +6,36 @@ import (
 	"errors"
 
 	"abhi.com/tcp/message"
+	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/proto"
+	// "google.golang.org/protobuf/proto"
 )
 
-func ReadRequest(r *bufio.Reader) (proto.Message, error) {
+func ReadRequest(r *bufio.Reader) (*message.RpcRequest, error) {
+	req := &message.RpcRequest{}
+	err := ReadPacket(req, r)
+	if err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
+func ReadResponse(r *bufio.Reader) (*message.RpcResponse, error) {
+	res := &message.RpcResponse{}
+	err := ReadPacket(res, r)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func ReadPacket(p proto.Message, r *bufio.Reader) error {
 	var l [2]byte
 	var i uint16 = 0
-	for i < 2 { 
+	for i < 2 {
 		b, err := r.ReadByte()
 		if err != nil {
-			log.Errorf("Error while reading: %v", err)
-			return nil, err
+			return err
 		}
 		l[i] = b
 		i++
@@ -26,30 +44,22 @@ func ReadRequest(r *bufio.Reader) (proto.Message, error) {
 	log.Infof("Received message of length: %d", msgSize)
 	i = 0
 	pMsg := make([]byte, msgSize)
-	for i < msgSize { 
+	for i < msgSize {
 		n, err := r.Read(pMsg[i:])
 		if err != nil {
-			log.Errorf("Error while reading: %v", err)
-			return nil, err
+			return err
 		}
 		i += uint16(n)
 	}
 	log.Infof("Raw message: %x", pMsg)
-	req := &message.RpcRequest{}
-	proto.Unmarshal(pMsg, req)
-	return req, nil
+	proto.Unmarshal(pMsg, p)
+	return nil
 }
 
-func WriteResponse(m proto.Message, w *bufio.Writer) error {
-	msg, err := proto.Marshal(m)
+func WritePacket(m proto.Message, w *bufio.Writer) error {
+	rMsg, err := proto.Marshal(m)
 	if err != nil {
-		return err
-	}
-	rMsg, err := proto.Marshal(&message.Response{
-		Payload: msg,
-	})
-	if err != nil {
-		log.Errorf("Failed to send resposne: %v", err)
+		log.Errorf("Failed to marshal packet for writing. %v", err)
 		return err
 	}
 	l := binary.Size(rMsg)
@@ -60,7 +70,7 @@ func WriteResponse(m proto.Message, w *bufio.Writer) error {
 	b := make([]byte, 2)
 	binary.LittleEndian.PutUint16(b, uint16(l))
 	log.Infof("Len bytes: % x", b)
-	packet := make([]byte, l + 2)
+	packet := make([]byte, l+2)
 	copy(packet, b)
 	copy(packet[2:], rMsg)
 	log.Infof("Packet: % x", packet)
@@ -74,12 +84,26 @@ func WriteResponse(m proto.Message, w *bufio.Writer) error {
 	return nil
 }
 
-func PrepareRequest(m proto.Message) (proto.Message, error) {
+func PrepareRequest(api string, m proto.Message) (*message.RpcRequest, error) {
 	msg, err := proto.Marshal(m)
 	if err != nil {
-		return err
+		log.Errorf("Failed to marshal payload. %v", err)
+		return nil, err
 	}
-	rMsg, err := proto.Marshal(&message.RpcRequest{
+	rpc := &message.RpcRequest{
+		Api:     api,
 		Payload: msg,
-	})
+	}
+	return rpc, nil
+}
+
+func PrepareResponse(m proto.Message) (*message.RpcResponse, error) {
+	msg, err := proto.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+	r := &message.RpcResponse{
+		Payload: msg,
+	}
+	return r, nil
 }

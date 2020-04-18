@@ -5,13 +5,11 @@ import (
 	"abhi.com/tcp/message"
 )
 
-
-
 func main() {
 	e, p := "abhipranay.chauhan@gmail.com", "asdf@123"
 	msg := &message.Login{
-		Email: &e,
-		Password: &p,
+		Email:    e,
+		Password: p,
 	}
 
 	c := &client.Client{
@@ -19,7 +17,7 @@ func main() {
 		SAddr: "0.0.0.0:7878",
 	}
 	if err := c.Connect(); err != nil {
-		panic("Client error: "  + err.Error())
+		panic("Client error: " + err.Error())
 	}
 	c.Send(msg)
 }

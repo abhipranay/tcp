@@ -2,14 +2,15 @@ package tcpserver
 
 import (
 	"bufio"
+	"io"
 	"net"
 
 	log "github.com/sirupsen/logrus"
 )
 
 type Server struct {
-	Proto string
-	Addr  string
+	Proto   string
+	Addr    string
 	Handler func(rw *bufio.ReadWriter) error
 }
 
@@ -33,7 +34,7 @@ func (s *Server) ListenAndGo() error {
 		}
 		log.Info("Client ", conn.RemoteAddr(), " connected")
 		go func() {
-			defer func ()  {
+			defer func() {
 				log.Infof("Closing connection %s", conn.RemoteAddr())
 				conn.Close()
 			}()
@@ -41,7 +42,10 @@ func (s *Server) ListenAndGo() error {
 			w := bufio.NewWriter(conn)
 			err := s.Handler(bufio.NewReadWriter(r, w))
 			if err != nil {
-				log.Errorf("Error in handler: %v", err)
+				if err == io.EOF {
+					return
+				}
+				log.Errorf("Handler returned with error: %v", err)
 			}
 		}()
 	}

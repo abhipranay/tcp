@@ -5,15 +5,15 @@ import (
 	"abhi.com/tcp/tcpserver"
 )
 
-func main()  {
+func main() {
 	s := &tcpserver.Server{
-		Proto: "tcp",
-		Addr: "0.0.0.0:7878",
+		Proto:   "tcp",
+		Addr:    "localhost:7878",
 		Handler: protocol.ProtobufMessageHandler,
 	}
 	err := s.ListenAndGo().Error()
 	if len(err) > 0 {
 		panic("Failed to start server: " + err)
 	}
-	select{}
+	select {}
 }

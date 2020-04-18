@@ -1,12 +1,12 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package message;
 
 message RpcRequest {
-	required string api = 1;
-	optional bytes payload = 2;
+	string api = 1;
+	bytes payload = 2;
 }
 
-message Response {
-	optional bytes payload = 1;
+message RpcResponse {
+	bytes payload = 1;
 }
