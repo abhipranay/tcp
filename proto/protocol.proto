@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package message;
+
+message RpcRequest {
+	required string api = 1;
+	optional bytes payload = 2;
+}
+
+message Response {
+	optional bytes payload = 1;
+}
