@@ -34,7 +34,6 @@ func (c *Client) Connect() error {
 }
 
 func (c *Client) Send(m proto.Message) error {
-	defer c.conn.Close()
 	req, _ := protocol.PrepareRequest("login", m)
 	err := protocol.WritePacket(req, c.rw.Writer)
 	if err != nil {

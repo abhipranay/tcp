@@ -1,11 +1,17 @@
-package main
+package tcpserver
 
 import (
+	"testing"
+
 	"abhi.com/tcp/client"
 	"abhi.com/tcp/message"
 )
 
-func main() {
+func BenchmarkServer(t *testing.B) {
+	sendMessage()
+}
+
+func sendMessage() {
 	e, p := "abhipranay.chauhan@gmail.com", "asdf@123"
 	msg := &message.Login{
 		Email:    e,
@@ -20,7 +26,7 @@ func main() {
 		panic("Client error: " + err.Error())
 	}
 	i := 0
-	for i < 10000 {
+	for i < 1000 {
 		i++
 		c.Send(msg)
 	}
