@@ -32,7 +32,7 @@ func getLoginResponse() proto.Message {
 	t := "abcdefghijk"
 	r := "reftok"
 	return &message.LoginResponse{
-		Token:        t,
-		RefreshToken: r,
+		Token:        &t,
+		RefreshToken: &r,
 	}
 }

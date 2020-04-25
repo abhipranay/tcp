@@ -1,15 +1,15 @@
-syntax = "proto3";
+syntax = "proto2";
 
 package message;
 
 
 message Login {
-	string email = 1;
-	string password = 2;
+	required string email = 1;
+	required string password = 2;
 }
 
 message LoginResponse {
-	string token = 1;
-	string refreshToken = 2;
-	bool error = 3;
+	optional string token = 1;
+	optional string refreshToken = 2;
+	optional bool error = 3;
 }

@@ -91,7 +91,7 @@ func PrepareRequest(api string, m proto.Message) (*message.RpcRequest, error) {
 		return nil, err
 	}
 	rpc := &message.RpcRequest{
-		Api:     api,
+		Api:     &api,
 		Payload: msg,
 	}
 	return rpc, nil

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"abhi.com/tcp/client"
 	"abhi.com/tcp/message"
 )
@@ -8,8 +10,8 @@ import (
 func main() {
 	e, p := "abhipranay.chauhan@gmail.com", "asdf@123"
 	msg := &message.Login{
-		Email:    e,
-		Password: p,
+		Email:    &e,
+		Password: &p,
 	}
 
 	c := &client.Client{
@@ -20,8 +22,9 @@ func main() {
 		panic("Client error: " + err.Error())
 	}
 	i := 0
-	for i < 10000 {
+	for i < 100 {
 		i++
 		c.Send(msg)
 	}
+	fmt.Print(i)
 }

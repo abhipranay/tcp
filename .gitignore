@@ -3,3 +3,6 @@ client
 message/*
 .vscode
 .idea
+hex.txt
+hex.bin
+bin/
